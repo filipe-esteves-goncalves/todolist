@@ -1,30 +1,41 @@
 spring:
   application:
     name: todoList
-
+  datasource:
+    # Use environment variables with sensible defaults so the same config
+    # works when running with `docker compose` (service host = "postgres")
+    # or when running locally (override DB_HOST/DB_PORT/DB_NAME as needed).
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:mydatabase}
+    driver-class-name: org.postgresql.Driver
+    # Allow using DB_* env vars or fall back to Docker's POSTGRES_* vars set in compose.yaml
+    username: ${DB_USER:${POSTGRES_USER:myuser}}
+    password: ${DB_PASSWORD:${POSTGRES_PASSWORD:secret}}
+    hikari:
+      maximum-pool-size: 10
 
 server:
   port: 8080
 
-# H2 Database Configuration
-spring.datasource.url=
-spring.datasource.driverClassName=org.postgres.Driver
-spring.datasource.username=sa
-spring.datasource.password=
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
 
-# Management / Actuator (exposed on separate port)
-management.server.port=8081
-management.endpoints.web.exposure.include=health,info,metrics,env
-management.endpoints.web.base-path=/actuator
-management.endpoint.health.show-details=always
-  
-  
-  # springdoc (OpenAPI) configuration
-  springdoc.api-docs.path=/v3/api-docs
-  springdoc.swagger-ui.path=/swagger-ui.html
-  springdoc.swagger-ui.operationsSorter=method
-  springdoc.swagger-ui.tagsSorter=alpha
-  springdoc.swagger-ui.tryItOutEnabled=true
-  springdoc.swagger-ui.filter=true
-  springdoc.api-docs.version=OPENAPI_3_0
-  springdoc.packages-to-scan=com.filipe.controller
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    version: OPENAPI_3_0
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    filter: true
+  packages-to-scan: com.filipe.todolist.controller
