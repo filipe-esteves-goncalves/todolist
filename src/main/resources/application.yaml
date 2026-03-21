@@ -1,3 +1,30 @@
 spring:
   application:
     name: todoList
+
+
+server:
+  port: 8080
+
+# H2 Database Configuration
+spring.datasource.url=
+spring.datasource.driverClassName=org.postgres.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# Management / Actuator (exposed on separate port)
+management.server.port=8081
+management.endpoints.web.exposure.include=health,info,metrics,env
+management.endpoints.web.base-path=/actuator
+management.endpoint.health.show-details=always
+  
+  
+  # springdoc (OpenAPI) configuration
+  springdoc.api-docs.path=/v3/api-docs
+  springdoc.swagger-ui.path=/swagger-ui.html
+  springdoc.swagger-ui.operationsSorter=method
+  springdoc.swagger-ui.tagsSorter=alpha
+  springdoc.swagger-ui.tryItOutEnabled=true
+  springdoc.swagger-ui.filter=true
+  springdoc.api-docs.version=OPENAPI_3_0
+  springdoc.packages-to-scan=com.filipe.controller

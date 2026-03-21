@@ -1,0 +1,16 @@
+@baseUrl   = http://localhost:8080
+
+
+### Create a todo
+POST {{baseUrl}}/todo
+Content-Type: application/json
+
+{
+  "status": "OUT_OF_SERVICE"
+}
+
+> {%
+    client.test('201 - Created', function () {
+        client.assert(response.status === 200, 'expected 200, got ' + response.status);
+    });
+%}
