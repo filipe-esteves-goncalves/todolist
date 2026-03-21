@@ -1,16 +1,145 @@
-@baseUrl   = http://localhost:8080
-
+@baseUrl = http://localhost:8080
 
 ### Create a todo
 POST {{baseUrl}}/todo
 Content-Type: application/json
 
 {
-  "status": "OUT_OF_SERVICE"
+  "title": "Initial Todo",
+  "description": "created by crud.http",
+  "completed": false
 }
 
 > {%
-    client.test('201 - Created', function () {
+    client.test('POST /todo - 201 Created', function () {
+        client.assert(response.status === 201, 'expected 201, got ' + response.status);
+    });
+    // store created id for subsequent requests
+    try {
+        var id = null;
+        var loc = null;
+        // Try to get Location header (common in POST responses)
+        if (response && response.headers) {
+            // headers may be an array of {name, value} or an object
+            if (Array.isArray(response.headers)) {
+                for (var i = 0; i < response.headers.length; i++) {
+                    var h = response.headers[i];
+                    if (h && h.name && h.name.toLowerCase() === 'location') {
+                        loc = h.value;
+                        break;
+                    }
+                }
+            } else if (typeof response.headers === 'object') {
+                for (var k in response.headers) {
+                    if (k.toLowerCase() === 'location') {
+                        loc = response.headers[k];
+                        break;
+                    }
+                }
+            }
+        }
+        if (loc) {
+            // Location may be '/todo/{id}' or a full URL
+            var parts = loc.split('/');
+            id = parts[parts.length - 1];
+        }
+        if (!id) {
+            var body;
+            if (response && typeof response.body === 'object') {
+                body = response.body;
+            } else if (response && typeof response.body === 'string') {
+                body = JSON.parse(response.body);
+            } else if (typeof response === 'string') {
+                body = JSON.parse(response);
+            }
+            if (body && body.id) {
+                id = body.id;
+            }
+        }
+        if (id) {
+            // sanitize id: remove any surrounding whitespace or stray characters (like '>')
+            try {
+                id = ('' + id).trim().replace(/[^0-9a-zA-Z\-]/g, '');
+            } catch (e) {
+                id = ('' + id).trim();
+            }
+            client.global.set('todoId', id);
+        } else {
+            client.test('POST response parse', function () {
+                client.assert(false, 'Could not determine created id from response');
+            });
+        }
+    } catch (e) {
+        client.test('POST response parse', function () {
+            client.assert(false, 'Failed to parse POST response: ' + e);
+        });
+    }
+%}
+
+### Get created todo
+GET {{baseUrl}}/todo/{{todoId}}
+
+> {%
+    client.test('GET /todo/{id} - 200 OK', function () {
         client.assert(response.status === 200, 'expected 200, got ' + response.status);
     });
 %}
+
+### Update todo (set completed true)
+PUT {{baseUrl}}/todo/{{todoId}}
+Content-Type: application/json
+
+{
+  "title": "Initial Todo",
+  "description": "updated by crud.http",
+  "completed": true
+}
+
+> {%
+    client.test('PUT /todo/{id} - 200 OK', function () {
+        client.assert(response.status === 200, 'expected 200, got ' + response.status);
+    });
+%}
+
+### Get updated todo
+GET {{baseUrl}}/todo/{{todoId}}
+
+> {%
+    client.test('GET (after update) /todo/{id} - 200 OK and completed true', function () {
+        client.assert(response.status === 200, 'expected 200, got ' + response.status);
+        try {
+            var body;
+            if (response && typeof response.body === 'object') {
+                body = response.body;
+            } else if (response && typeof response.body === 'string') {
+                body = JSON.parse(response.body);
+            } else if (typeof response === 'string') {
+                body = JSON.parse(response);
+            }
+            client.assert(body && body.completed === true, 'expected completed === true, got ' + JSON.stringify(body));
+        } catch (e) {
+            client.test('GET-after-update parse', function () {
+                client.assert(false, 'Failed to parse GET response: ' + e);
+            });
+        }
+    });
+%}
+
+### Delete todo
+DELETE {{baseUrl}}/todo/{{todoId}}
+
+> {%
+    client.test('DELETE /todo/{id} - 204 No Content', function () {
+        client.assert(response.status === 204, 'expected 204, got ' + response.status);
+    });
+%}
+
+### Get deleted todo (should be 404)
+GET {{baseUrl}}/todo/{{todoId}}
+
+> {%
+    client.test('GET (after delete) /todo/{id} - 404 Not Found', function () {
+        client.assert(response.status === 404, 'expected 404, got ' + response.status);
+    });
+%}
+
