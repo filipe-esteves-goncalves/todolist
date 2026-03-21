@@ -5,8 +5,6 @@ import com.filipe.todolist.dto.Request;
 import com.filipe.todolist.dto.Response;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
 public class TODOMapper {
 
