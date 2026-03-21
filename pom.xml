@@ -63,37 +63,14 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Lombok for reducing boilerplate code (getters/setters, constructors, etc.) -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
+        <!-- Lombok removed; using explicit Java implementations -->
 
-        <!-- MapStruct for object mapping -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>1.6.3</version>
-            <scope>compile</scope>
-        </dependency>
+        <!-- MapStruct removed; using manual mapper implementation -->
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Plugin maven compiler -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+            <!-- relying on Spring Boot parent to configure the compiler plugin and annotation processing -->
 
             <!-- Spring boot maven plugin -->
             <plugin>

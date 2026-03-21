@@ -1,4 +1,10 @@
 package com.filipe.todolist.dto;
 
-public record Request() {
+import java.util.UUID;
+
+public record Request(
+		String title,
+		String description,
+		Boolean completed
+) {
 }
