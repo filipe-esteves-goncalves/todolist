@@ -17,6 +17,7 @@
     <properties>
         <java.version>21</java.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -70,6 +71,20 @@
 
     <build>
         <plugins>
+            <!-- Ensure Maven uses the system JDK's javac for Java 21 compilation -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                    <release>21</release>
+                    <fork>true</fork>
+                    <executable>${env.JAVA_HOME}/bin/javac</executable>
+                </configuration>
+            </plugin>
+
             <!-- relying on Spring Boot parent to configure the compiler plugin and annotation processing -->
 
             <!-- Spring boot maven plugin -->
