@@ -43,7 +43,7 @@ up:
 # Wait for the app container to report healthy (polls every 3s, max 90s)
 wait:
 	@echo "Waiting for app to be ready..."
-	@timeout 90 sh -c 'until docker inspect --format="{{.State.Health.Status}}" todolist-app-1 2>/dev/null | grep -q "healthy"; do printf "."; sleep 3; done'
+	@timeout 90 sh -c 'until curl -sf http://localhost:8081/actuator/health > /dev/null 2>&1; do printf "."; sleep 3; done'
 	@echo ""
 	@echo "App is ready at http://localhost:8080"
 
