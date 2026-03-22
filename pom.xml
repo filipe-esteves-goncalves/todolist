@@ -65,6 +65,12 @@
         </dependency>
 
         <!-- Lombok removed; using explicit Java implementations -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- MapStruct removed; using manual mapper implementation -->
     </dependencies>
