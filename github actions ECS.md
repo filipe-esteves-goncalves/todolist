@@ -4,7 +4,7 @@ This document serves as a specification for the AI Agent to generate and configu
 
 Project Context
 
-App Name: todoList (from pom.xml)
+App Name: todolist (from pom.xml)
 
 Main Port: 8080 (API), 8081 (Actuator)
 
@@ -27,11 +27,11 @@ Permissions: Must have packages: write and contents: read.
 Auth: Use the automatic ${{ secrets.GITHUB_TOKEN }}.
 
 Build Step: Use the Maven command:
-./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=ghcr.io/${{ github.repository_owner }}/todo-list:latest
+./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=ghcr.io/<LOWERCASE_OWNER>/todolist:latest
 
 Login: Use docker/login-action@v3 with registry: ghcr.io, username: ${{ github.actor }}, and password: ${{ secrets.GITHUB_TOKEN }}.
 
-Push: Push the tagged image to ghcr.io/${{ github.repository_owner }}/todo-list:latest.
+Push: Push the tagged image to ghcr.io/<LOWERCASE_OWNER>/todolist:latest.
 
 Task 2: Smoke Test Workflow (LocalStack + ECS)
 
@@ -79,7 +79,7 @@ Goal: Provide a aws/task-definition.json for the agent to use.
   "containerDefinitions": [
     {
       "name": "todo-app",
-      "image": "ghcr.io/<OWNER>/todo-list:latest",
+      "image": "ghcr.io/<OWNER>/todolist:latest",
       "essential": true,
       "portMappings": [
         { "containerPort": 8080, "hostPort": 8080, "protocol": "tcp" },

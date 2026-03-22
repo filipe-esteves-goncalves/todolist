@@ -4,7 +4,7 @@
   "containerDefinitions": [
     {
       "name": "todo-app",
-      "image": "ghcr.io/filipe/todo-list:latest",
+      "image": "ghcr.io/filipe1986/todolist:latest",
       "essential": true,
       "portMappings": [
         {

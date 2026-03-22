@@ -48,6 +48,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Compute lowercase image name
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=ghcr.io/${OWNER}/todolist:latest" >> $GITHUB_ENV
+
       - name: Install awscli-local
         run: pip install awscli-local
 
@@ -75,8 +80,8 @@ jobs:
 
       - name: Register ECS task definition
         run: |
-          # Substitute GHCR owner in the task definition
-          sed 's|ghcr.io/filipe/|ghcr.io/${{ github.repository_owner }}/|g' task-definition.json > task-def-resolved.json
+          # Replace placeholder image with the actual lowercase image name
+          sed "s|ghcr.io/filipe1986/todolist:latest|${IMAGE}|g" task-definition.json > task-def-resolved.json
           awslocal ecs register-task-definition --cli-input-json file://task-def-resolved.json
 
       - name: Run ECS task
@@ -110,7 +115,7 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: secret
         run: |
           ./mvnw package -DskipTests -q
-          nohup java -jar target/todoList-*.jar \
+          nohup java -jar target/todolist-*.jar \
             --spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase \
             --spring.datasource.username=myuser \
             --spring.datasource.password=secret \

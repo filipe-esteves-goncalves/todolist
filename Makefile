@@ -1,4 +1,4 @@
-# Makefile for building and running the todoList Docker image
+# Makefile for building and running the todolist Docker image
 
 IMAGE_NAME ?= com.filipe/todolist:0.0.1
 MVNW ?= ./mvnw

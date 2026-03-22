@@ -1,6 +1,6 @@
 spring:
   application:
-    name: todoList
+    name: todolist
   docker:
     compose:
       enabled: false   # we manage compose manually; prevents auto-reconfiguration of the datasource

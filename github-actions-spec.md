@@ -4,7 +4,7 @@ This document serves as a specification for the AI Agent to generate and configu
 
 ## Project Context
 
-* **App Name:** `todoList` (from `pom.xml`)
+* **App Name:** `todolist` (from `pom.xml`)
 * **Main Port:** 8080 (API), 8081 (Actuator)
 * **Database:** PostgreSQL (Hardcoded credentials: `myuser`/`secret`)
 * **Build Tool:** Maven / Spring Boot Buildpacks
@@ -21,13 +21,13 @@ This document serves as a specification for the AI Agent to generate and configu
 3. **Auth:** Use the automatic `${{ secrets.GITHUB_TOKEN }}`.
 4. **Build Step:** Use the Maven command:
    ```
-   ./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=ghcr.io/${{ github.repository_owner }}/todo-list:latest
+   ./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=ghcr.io/<LOWERCASE_OWNER>/todolist:latest
    ```
 5. **Login:** Use `docker/login-action@v3` with:
    * **Registry:** `ghcr.io`
    * **Username:** `${{ github.actor }}`
    * **Password:** `${{ secrets.GITHUB_TOKEN }}`
-6. **Push:** Push the tagged image to `ghcr.io/${{ github.repository_owner }}/todo-list:latest`.
+6. **Push:** Push the tagged image to `ghcr.io/<LOWERCASE_OWNER>/todolist:latest`.
 
 ## Task 2: Smoke Test Workflow (LocalStack + ECS)
 
@@ -64,7 +64,7 @@ This document serves as a specification for the AI Agent to generate and configu
   "containerDefinitions": [
     {
       "name": "todo-app",
-      "image": "ghcr.io/<OWNER>/todo-list:latest",
+      "image": "ghcr.io/<OWNER>/todolist:latest",
       "essential": true,
       "portMappings": [
         {
