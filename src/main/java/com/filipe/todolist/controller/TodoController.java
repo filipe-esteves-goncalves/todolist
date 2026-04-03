@@ -25,7 +25,7 @@ public class TodoController {
 
 	@GetMapping
 	public List<Response> listAll() {
-		log.info("GET /todo - listAll called");
+		log.debug("GET /todo - listAll called");
 		var result = service.findAll();
 		log.debug("GET /todo - returning {} items", result.size());
 		return result;

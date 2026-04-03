@@ -4,7 +4,7 @@ IMAGE_NAME ?= com.filipe/todolist:0.0.1
 MVNW ?= ./mvnw
 HOST_PORT ?= 8080
 
-.PHONY: build-image package docker-run up down wait push clean
+.PHONY: build-image package docker-run up down wait push clean validate-task-def
 
 # Build a container image using Spring Boot buildpacks (requires Docker)
 build-image:
@@ -58,4 +58,34 @@ push:
 # Clean build artifacts
 clean:
 	$(MVNW) clean
+
+# Validate task-definition.json (requires jq)
+validate-task-def:
+	@echo "Validating task-definition.json..."
+	@jq . task-definition.json > /dev/null && echo "  JSON syntax OK"
+	@jq -e '.family                  | length > 0' task-definition.json > /dev/null || (echo "MISSING: family"; exit 1)
+	@jq -e '.networkMode             | length > 0' task-definition.json > /dev/null || (echo "MISSING: networkMode"; exit 1)
+	@jq -e '.containerDefinitions   | length > 0' task-definition.json > /dev/null || (echo "MISSING: containerDefinitions"; exit 1)
+	@jq -e '.requiresCompatibilities | length > 0' task-definition.json > /dev/null || (echo "MISSING: requiresCompatibilities"; exit 1)
+	@jq -e '.cpu                     | length > 0' task-definition.json > /dev/null || (echo "MISSING: cpu"; exit 1)
+	@jq -e '.memory                  | length > 0' task-definition.json > /dev/null || (echo "MISSING: memory"; exit 1)
+	@echo "  Required fields OK"
+	@IMAGE=$$(jq -r '.containerDefinitions[0].image' task-definition.json); \
+	  echo "  image: $$IMAGE"; \
+	  echo "$$IMAGE" | grep -q '[A-Z]' && (echo "ERROR: image contains uppercase"; exit 1) || echo "  Image name OK"
+	@jq -e '.requiresCompatibilities | contains(["FARGATE"])' task-definition.json > /dev/null \
+	  || (echo "ERROR: requiresCompatibilities must include FARGATE"; exit 1)
+	@echo "  FARGATE compatibility OK"
+	@ENV_NAMES=$$(jq -r '.containerDefinitions[0].environment[].name' task-definition.json); \
+	  for VAR in DB_HOST DB_PORT DB_USER DB_PASSWORD DB_NAME; do \
+	    echo "$$ENV_NAMES" | grep -q "^$${VAR}$$" || (echo "MISSING env var: $$VAR"; exit 1); \
+	  done
+	@echo "  Env vars OK"
+	@echo ""
+	@echo "Summary:"
+	@echo "  family    : $$(jq -r '.family' task-definition.json)"
+	@echo "  image     : $$(jq -r '.containerDefinitions[0].image' task-definition.json)"
+	@echo "  cpu/memory: $$(jq -r '.cpu' task-definition.json) / $$(jq -r '.memory' task-definition.json)"
+	@echo "  ports     : $$(jq -r '.containerDefinitions[0].portMappings[].containerPort' task-definition.json | tr '\n' ' ')"
+	@echo "task-definition.json is valid."
 

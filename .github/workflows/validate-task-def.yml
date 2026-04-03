@@ -1,0 +1,91 @@
+name: Validate ECS Task Definition
+
+on:
+  push:
+    paths:
+      - 'task-definition.json'
+  pull_request:
+    paths:
+      - 'task-definition.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate task-definition.json
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Validate JSON syntax
+        run: |
+          echo "Checking JSON syntax..."
+          jq . task-definition.json > /dev/null
+          echo "JSON syntax OK"
+
+      - name: Validate required top-level fields
+        run: |
+          echo "Checking required top-level fields..."
+          jq -e '.family                  | length > 0' task-definition.json > /dev/null || { echo "MISSING: family"; exit 1; }
+          jq -e '.networkMode             | length > 0' task-definition.json > /dev/null || { echo "MISSING: networkMode"; exit 1; }
+          jq -e '.containerDefinitions   | length > 0' task-definition.json > /dev/null || { echo "MISSING: containerDefinitions"; exit 1; }
+          jq -e '.requiresCompatibilities | length > 0' task-definition.json > /dev/null || { echo "MISSING: requiresCompatibilities"; exit 1; }
+          jq -e '.cpu                     | length > 0' task-definition.json > /dev/null || { echo "MISSING: cpu"; exit 1; }
+          jq -e '.memory                  | length > 0' task-definition.json > /dev/null || { echo "MISSING: memory"; exit 1; }
+          echo "Top-level fields OK"
+
+      - name: Validate container definition fields
+        run: |
+          echo "Checking container definition fields..."
+          jq -e '.containerDefinitions | length > 0'                   task-definition.json > /dev/null || { echo "MISSING: containerDefinitions must not be empty"; exit 1; }
+          jq -e '.containerDefinitions[0].name'                        task-definition.json > /dev/null || { echo "MISSING: containerDefinitions[0].name"; exit 1; }
+          jq -e '.containerDefinitions[0].image'                       task-definition.json > /dev/null || { echo "MISSING: containerDefinitions[0].image"; exit 1; }
+          jq -e '.containerDefinitions[0].essential'                   task-definition.json > /dev/null || { echo "MISSING: containerDefinitions[0].essential"; exit 1; }
+          jq -e '.containerDefinitions[0].portMappings | length > 0'   task-definition.json > /dev/null || { echo "MISSING: containerDefinitions[0].portMappings"; exit 1; }
+          echo "Container definition fields OK"
+
+      - name: Validate image name is lowercase
+        run: |
+          echo "Checking image name is lowercase..."
+          IMAGE=$(jq -r '.containerDefinitions[0].image' task-definition.json)
+          echo "  image: $IMAGE"
+          if echo "$IMAGE" | grep -q '[A-Z]'; then
+            echo "ERROR: image name '$IMAGE' contains uppercase characters (Docker requires lowercase)"
+            exit 1
+          fi
+          echo "Image name OK"
+
+      - name: Validate requiresCompatibilities is FARGATE
+        run: |
+          echo "Checking requiresCompatibilities..."
+          jq -e '.requiresCompatibilities | contains(["FARGATE"])' task-definition.json > /dev/null \
+            || { echo "ERROR: requiresCompatibilities must include FARGATE"; exit 1; }
+          echo "requiresCompatibilities OK"
+
+      - name: Validate environment variables are present
+        run: |
+          echo "Checking required environment variables..."
+          ENV_NAMES=$(jq -r '.containerDefinitions[0].environment[].name' task-definition.json)
+          for VAR in DB_HOST DB_PORT DB_USER DB_PASSWORD DB_NAME; do
+            echo "$ENV_NAMES" | grep -q "^${VAR}$" || { echo "MISSING env var: $VAR"; exit 1; }
+          done
+          echo "Environment variables OK"
+
+      - name: Print summary
+        run: |
+          echo ""
+          echo "task-definition.json is valid:"
+          echo "  family               : $(jq -r '.family'                              task-definition.json)"
+          echo "  networkMode          : $(jq -r '.networkMode'                         task-definition.json)"
+          echo "  requiresCompat       : $(jq -r '.requiresCompatibilities | join(", ")' task-definition.json)"
+          echo "  cpu / memory         : $(jq -r '.cpu' task-definition.json) / $(jq -r '.memory' task-definition.json)"
+          echo "  container name       : $(jq -r '.containerDefinitions[0].name'        task-definition.json)"
+          echo "  image                : $(jq -r '.containerDefinitions[0].image'       task-definition.json)"
+          echo "  ports                : $(jq -r '.containerDefinitions[0].portMappings[].containerPort' task-definition.json | tr '\n' ' ')"
+          echo "  env vars             : $(jq -r '.containerDefinitions[0].environment[].name' task-definition.json | tr '\n' ' ')"
+
+

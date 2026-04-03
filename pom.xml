@@ -5,17 +5,17 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.4</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>4.0.0-M1</version> <!-- Spring Boot 4 is required for first-class Java 25 support -->
+        <relativePath/>
     </parent>
     <groupId>com.filipe</groupId>
     <artifactId>todolist</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>todolist</name>
     <description>todolist</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
     </properties>
 
     <dependencies>
@@ -36,7 +36,6 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>3.0.2</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-docker-compose</artifactId>
@@ -50,54 +49,46 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator-test</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Lombok removed; using explicit Java implementations -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.34</version>
-            <scope>provided</scope>
+            <version>1.18.44</version> <!-- Updated for newer JDK support -->
+            <!-- Make Lombok available at compile time so annotation processors (e.g. @Slf4j)
+                 are applied during the build and IDE compilation. It is still excluded
+                 from the final jar by the spring-boot-maven-plugin excludes block above. -->
+            <scope>compile</scope>
         </dependency>
-
-        <!-- MapStruct removed; using manual mapper implementation -->
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Ensure Maven uses the system JDK's javac for Java 21 compilation -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.13.0</version> <!-- Updated version for JDK 25 support -->
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
-                    <release>21</release>
-                    <fork>true</fork>
-                    <executable>${env.JAVA_HOME}/bin/javac</executable>
+                    <release>25</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.44</version>
+                        </path>
+                        <!-- If you are using MapStruct, you must add its processor path here too -->
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
-
-            <!-- relying on Spring Boot parent to configure the compiler plugin and annotation processing -->
-
-            <!-- Spring boot maven plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <systemPropertyVariables>
+                        <spring.docker.compose.enabled>true</spring.docker.compose.enabled>
+                        <spring.docker.compose.file>compose.yaml</spring.docker.compose.file>
+                    </systemPropertyVariables>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -106,7 +97,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>
