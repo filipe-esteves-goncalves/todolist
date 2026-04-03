@@ -1,6 +1,6 @@
 package com.filipe.todolist.service;
 
-import com.filipe.todolist.TODOMapper;
+import com.filipe.todolist.mapper.TODOMapper;
 import com.filipe.todolist.domain.TODO;
 import com.filipe.todolist.dto.Request;
 import com.filipe.todolist.dto.Response;
@@ -13,6 +13,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Service layer that implements business operations for TODO items.
+ */
 @Slf4j
 @Service
 public class TODOService {
@@ -21,11 +24,22 @@ public class TODOService {
 	private final TODORepository repository;
 	private final TODOMapper mapper;
 
+	/**
+	 * Construct the service with required dependencies.
+	 *
+	 * @param repository repository used for persistence operations
+	 * @param mapper     mapper to convert between entities and DTOs
+	 */
 	public TODOService(TODORepository repository, TODOMapper mapper) {
 		this.repository = repository;
 		this.mapper = mapper;
 	}
 
+	/**
+	 * Find all TODO items.
+	 *
+	 * @return list of response DTOs
+	 */
 	public List<Response> findAll() {
 		log.info("Service.findAll called");
 		var res = repository.findAll().stream().map(mapper::toResponse).collect(Collectors.toList());
@@ -33,6 +47,12 @@ public class TODOService {
 		return res;
 	}
 
+	/**
+	 * Find a TODO by id.
+	 *
+	 * @param id identifier to search for
+	 * @return optional response DTO
+	 */
 	public Optional<Response> findById(UUID id) {
 		log.info("Service.findById called with id={}", id);
 		var r = repository.findById(id).map(mapper::toResponse);
@@ -41,6 +61,12 @@ public class TODOService {
 		return r;
 	}
 
+	/**
+	 * Create a new TODO from the given request.
+	 *
+	 * @param request incoming request payload
+	 * @return created response DTO
+	 */
 	public Response create(Request request) {
 		log.info("Service.create called: {}", request);
 		TODO entity = mapper.toEntity(request);
@@ -50,6 +76,13 @@ public class TODOService {
 		return resp;
 	}
 
+	/**
+	 * Update an existing TODO identified by id with values from the request.
+	 *
+	 * @param id      id of the todo to update
+	 * @param request fields to update
+	 * @return optional updated response DTO
+	 */
 	public Optional<Response> update(UUID id, Request request) {
 		log.info("Service.update called id={} request={}", id, request);
 		return repository.findById(id).map(existing -> {
@@ -61,6 +94,12 @@ public class TODOService {
 		});
 	}
 
+	/**
+	 * Delete a TODO by id.
+	 *
+	 * @param id id of the todo to delete
+	 * @return true when deleted, false when not found
+	 */
 	public boolean delete(UUID id) {
 		log.info("Service.delete called id={}", id);
 		if (repository.existsById(id)) {
