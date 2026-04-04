@@ -67,7 +67,8 @@ springdoc:
     path: /v3/api-docs
     version: OPENAPI_3_0
   swagger-ui:
-    path: /swagger-ui.html
+    # expose the Swagger UI at /v3/swagger-ui.html so the path you attempted works
+    path: /v3/swagger-ui.html
     operationsSorter: method
     tagsSorter: alpha
     tryItOutEnabled: true

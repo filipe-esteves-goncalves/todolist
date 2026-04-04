@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 @Slf4j
 @RestController
-@RequestMapping("/todo")
+@RequestMapping("/v1/todo")
 public class TodoController {
 
 	private final TODOService service;
