@@ -1,11 +1,8 @@
 package com.filipe.todolist.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,14 +35,31 @@ public class TODO {
     @Column(nullable = false)
     private boolean completed = false;
 
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
     /**
      * Ensure the entity has an id before persisting.
+     * Set createAt and updatedAt timestamps to the current time.
      */
     @PrePersist
     public void prePersist() {
         if (id == null) {
             id = UUID.randomUUID();
         }
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
+    }
+
+
+    /**
+     * Update updatedAt timestamps when updating the row
+     */
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
 }
