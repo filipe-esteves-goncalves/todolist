@@ -2,6 +2,25 @@
 
 Small Spring Boot REST API for managing TODO items.
 
+
+
+
+| Attribute            | Value                                                  |
+|:---------------------|:-------------------------------------------------------|
+| **Java Version**     | 25 (LTS)                                               |
+| **Build Tool**       | **Maven**  `pom.xml`                                   |
+| **Docker**           | `docker compose` locally / Kubernetes                  |
+| Build Tool           | **Spring Boot** 4.0.4 (LTS)                            |
+| **Database**         | Postgres                                               |
+| **Spring Data**      | `spring-boot-starter-data-jpa`                         |
+| **GroupId**          | `com.filipe`                                           |
+| **Architecture**     | Layered (Controller → Service → Repository)            |
+| **Mapping Strategy** | DTO-First (MapStruct)                                  |
+| **Lombok**           | Builder                                                |
+| **Documentation**    | SpringDoc OpenAPI (Swagger UI)                         |
+| **Spring Actuator**  |                                                        |
+| **Validation**       | Defense-in-Depth (Jakarta + Manual Service Validation) |
+
 ## Summary
 
 This project is a simple TODO list service implemented with Spring Boot (Spring Boot 4 / Java 25). 

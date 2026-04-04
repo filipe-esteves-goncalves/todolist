@@ -21,14 +21,8 @@ import java.util.UUID;
 @RequestMapping("/todo")
 public class TodoController {
 
-
 	private final TODOService service;
 
-	/**
-	 * Create a new controller instance using the provided service.
-	 *
-	 * @param service service providing TODO business operations
-	 */
 	public TodoController(TODOService service) {
 		this.service = service;
 	}

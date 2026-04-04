@@ -43,11 +43,24 @@ management:
   endpoints:
     web:
       exposure:
+        # Expose the standard actuator endpoints we need for checks (health/info/metrics/env)
         include: health,info,metrics,env
+      # Base path for actuator is already provided below, keep consistent
       base-path: /actuator
   endpoint:
     health:
       show-details: always
+      # Enable the built-in readiness and liveness probe support so the
+      # /actuator/health/liveness and /actuator/health/readiness subpaths are available.
+      probes:
+        enabled: true
+      # Explicitly define the default groups for liveness/readiness so the sub-endpoints
+      # are backed by the appropriate internal health indicators.
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState
 
 springdoc:
   api-docs:

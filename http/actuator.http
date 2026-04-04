@@ -1,0 +1,68 @@
+
+### Get actuator response
+
+GET http://localhost:8081/actuator/health
+Content-Type: application/json
+
+> {%
+    client.test("Validate response", function() {
+        client.assert(response.status === 200, "returned " + response.status);
+        var body;
+        if (typeof response.body === 'string') {
+            try {
+                body = JSON.parse(response.body);
+            } catch (e) {
+                body = response.body;
+            }
+        } else {
+            body = response.body;
+        }
+
+        // Accept either a JSON object with { status: 'UP' } or a string containing UP
+        if (typeof body === 'string') {
+            client.assert(body.indexOf('UP') !== -1, "returned " + body);
+        } else {
+            client.assert(body && (body.status === 'UP' || (body.status && String(body.status).toUpperCase() === 'UP')), "returned " + JSON.stringify(body));
+        }
+    });
+%}
+
+### Get actuator health/liveness response
+GET http://localhost:8081/actuator/health/liveness
+Content-Type: application/json
+
+> {%
+    client.test("Validate response", function() {
+        client.assert(response.status === 200, "returned " + response.status);
+        var body;
+        if (typeof response.body === 'string') {
+            try { body = JSON.parse(response.body); } catch (e) { body = response.body; }
+        } else { body = response.body; }
+
+        if (typeof body === 'string') {
+            client.assert(body.indexOf('UP') !== -1, "returned " + body);
+        } else {
+            client.assert(body && (body.status === 'UP' || (body.status && String(body.status).toUpperCase() === 'UP')), "returned " + JSON.stringify(body));
+        }
+    });
+%}
+
+### Get actuator health/readiness response
+GET http://localhost:8081/actuator/health/readiness
+Content-Type: application/json
+
+> {%
+    client.test("Validate response", function() {
+        client.assert(response.status === 200, "returned " + response.status);
+        var body;
+        if (typeof response.body === 'string') {
+            try { body = JSON.parse(response.body); } catch (e) { body = response.body; }
+        } else { body = response.body; }
+
+        if (typeof body === 'string') {
+            client.assert(body.indexOf('UP') !== -1, "returned " + body);
+        } else {
+            client.assert(body && (body.status === 'UP' || (body.status && String(body.status).toUpperCase() === 'UP')), "returned " + JSON.stringify(body));
+        }
+    });
+%}
