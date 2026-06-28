@@ -68,6 +68,14 @@ Run with Docker Compose (repo contains `compose.yaml` / `compose.app.yaml`):
 docker compose -f compose.yaml up --build
 ```
 
+## GitOps (Argo CD)
+
+Argo CD manifests were added for local GitOps workflows:
+
+- App manifest: `infra/argocd/apps/todolist-application.yaml`
+- Sync path: `infra/k8s/base`
+- Local setup guide: `infra/argocd/README.md`
+
 ## Tests
 
 Run unit tests with:
