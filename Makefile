@@ -3,12 +3,13 @@
 IMAGE_NAME ?= com.filipe/todolist:0.0.1
 MVNW ?= ./mvnw
 HOST_PORT ?= 8080
+SPRING_BOOT_MAVEN_PLUGIN_VERSION ?= 4.0.4
 
 .PHONY: build-image package docker-run up down wait push clean validate-task-def
 
 # Build a container image using Spring Boot buildpacks (requires Docker)
 build-image:
-	$(MVNW) spring-boot:build-image -DskipTests \
+	$(MVNW) org.springframework.boot:spring-boot-maven-plugin:$(SPRING_BOOT_MAVEN_PLUGIN_VERSION):build-image -DskipTests \
 		-Dspring-boot.build-image.imageName=$(IMAGE_NAME)
 
 # Package the application (jar)
